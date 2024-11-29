@@ -13,17 +13,116 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 2. Start the app
 
    ```bash
-    npx expo start
+    npx expo run:ios
+   ```
+   or
+   ```bash
+    npx expo run:android
    ```
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+
+## Using Unistyles
+
+This project uses `react-native-unistyles` for theming and styling. Here is how you can use it:
+
+1. Define your themes in `unistyles.ts`:
+
+   ```typescript
+   const lightTheme = {
+     colors: {
+       text: '#11181C',
+       background: '#fff',
+       icon: '#687076',
+     },
+   };
+
+   const darkTheme = {
+     colors: {
+       text: '#ECEDEE',
+       background: '#151718',
+       icon: '#9BA1A6',
+     },
+   };
+
+   const appThemes = {
+     light: lightTheme,
+     dark: darkTheme,
+   };
+
+   const settings = {
+     adaptiveThemes: true,
+   };
+
+   StyleSheet.configure({
+     themes: appThemes,
+     settings,
+   });
+   ```
+
+2. Use the themed styles in your components:
+
+   ```tsx
+   import { View, Text } from 'react-native';
+   import { StyleSheet } from 'react-native-unistyles';
+
+   const MyComponent = () => {
+     return (
+       <View style={styles.container}>
+         <Text style={styles.text}>Hello, Unistyles!</Text>
+       </View>
+     );
+   };
+
+   const styles = StyleSheet.create((theme) => ({
+     container: {
+       backgroundColor: theme.colors.background,
+       flex: 1,
+       justifyContent: 'center',
+       alignItems: 'center',
+     },
+     text: {
+       color: theme.colors.text,
+     },
+   }));
+
+   export default MyComponent;
+   ```
+
+3. Customize themes dynamically:
+
+   ```tsx
+   import { UnistylesRuntime } from 'react-native-unistyles';
+
+   UnistylesRuntime.updateTheme('light', (currentTheme) => ({
+     ...currentTheme,
+     colors: {
+       ...currentTheme.colors,
+       background: '#f0f0f0',
+     },
+   }));
+   ```
+
+## Modify Main Entry
+
+Expo Router resolves routes differently than expected. Also, Unistyles 3.0 parses your StyleSheets as soon as you import the file containing it. This combination may cause some issues. To prevent that, you need to modify your main entry file:
+
+1. Update `package.json`:
+
+   ```json
+   {
+     "main": "index.js"
+   }
+   ```
+
+2. Create `index.js` file with the following content:
+
+   ```javascript
+   import 'expo-router/entry';
+   import './unistyles'; // <-- file that initializes Unistyles
+   ```
+
+With this setup, we will ensure that Unistyles is initialized before any other component.
 
 ## Get a fresh project
 
